@@ -1,7 +1,7 @@
 package com.example.medieval_marvels_and_might.Game;
 
 import com.example.medieval_marvels_and_might.ArmourFiles.*;
-import com.example.medieval_marvels_and_might.Game.MedievalGame;
+import com.example.medieval_marvels_and_might.MedievalGame;
 import com.example.medieval_marvels_and_might.Weapons.Weapon;
 
 import java.io.Serializable;
