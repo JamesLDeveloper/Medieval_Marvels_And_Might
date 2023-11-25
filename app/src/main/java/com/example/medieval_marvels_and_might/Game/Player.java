@@ -25,6 +25,8 @@ public class Player implements Serializable {
     private Trouser trouser;
     private Shoe shoe;
 
+    private String progress;
+
     //implement a max health variable?
 
     /* Constructors */
@@ -37,6 +39,7 @@ public class Player implements Serializable {
         this.shirt = new Shirt("None", 0, 0);
         this.trouser = new Trouser("None", 0, 0);
         this.shoe = new Shoe("None", 0, 0);
+        this.progress = "level1";
     }
 
     /* Instance Methods */
@@ -136,6 +139,14 @@ public class Player implements Serializable {
         this.shoe = shoe;
     }
 
+    public String getProgress() {
+        return progress;
+    }
+
+    public void setProgress(String progress) {
+        this.progress = progress;
+    }
+
     @Override
     public String toString() {
         return "\nCurrent Game.Player: \n" +
@@ -146,6 +157,7 @@ public class Player implements Serializable {
                 "   ArmourFiles.Helmet: " + helmet +
                 "   ArmourFiles.Shirt: " + shirt +
                 "   Trousers: " + trouser +
-                "   Shoes: " + shoe;
+                "   Shoes: " + shoe +
+                "Level: " + progress;
     }
 }

@@ -2,9 +2,8 @@ package com.example.medieval_marvels_and_might;
 
 import android.os.Bundle;
 import androidx.core.widget.TextViewCompat;
-import android.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.DialogInterface;
+
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -35,21 +34,25 @@ import java.util.Scanner;
 public class MainActivity extends AppCompatActivity implements Serializable {
 
 
-ImageView mainImageView;
+    ImageView mainImageView;
 
-TextView mainTextView;
+    TextView mainTextView;
 
-Button userResponse0Button;
+    Button userResponse0Button;
 
-Button userResponse1Button;
+    Button userResponse1Button;
 
-Button userResponse2Button;
+    Button userResponse2Button;
 
-Button userResponse3Button;
+    Button userResponse3Button;
 
-Button userSubmitButton;
+    Button userExitButton;
 
-EditText userTextInput;
+    Button userSubmitButton;
+
+    EditText userTextInput;
+
+    int userChoice = -1;
 
 
     private static final long serialVersionUID = 1L;
@@ -63,33 +66,34 @@ EditText userTextInput;
 
 //    private String progress;
 
-    private   String chest;
-    private  String chestTwo;
+    private int chest;
+    private int chestTwo;
 
-    private String doorOne;
-    private   String zombie;
+    private int doorOne;
+    private int zombie;
 
-    private String enemy2;
+    private int enemy2;
 
-    private String enemy3;
-    private  int zombieHealth = 4;
-    private  int zombieDamage = 2;
+    private int enemy3;
+    private int zombieHealth = 4;
+    private int zombieDamage = 2;
 
     private String userTextInputCollected;
 
-
+    private boolean validAnswer = false;
 
     Enemy zombieKing = new Enemy("Zombie King", 20, 20);
 
-    BossEnemy loki = new BossEnemy("Loki God Of Mischeif", 35,25, 4);
-
-
-
+    BossEnemy loki = new BossEnemy("Loki God Of Mischeif", 35, 25, 4);
 
 
     //    Level1 level1;
-    private static String progress = "level1";
+    //private static String progress = "level1";
     static boolean newGame = false;
+
+    MainActivity mainActivity = new MainActivity();
+    //        Scanner console = new Scanner(System.in);
+    MedievalGame game = new MedievalGame();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +127,10 @@ EditText userTextInput;
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
                 userResponse3Button, autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
 
+        userExitButton = findViewById(R.id.btn_main_exit);
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+                userExitButton, autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
+
         userSubmitButton = findViewById(R.id.btn_main_submit);
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
                 userSubmitButton, autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
@@ -138,27 +146,28 @@ EditText userTextInput;
         userResponse0Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                selectOption(0);
             }
         });
 
         userResponse0Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                selectOption(1);
             }
         });
 
         userResponse0Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                selectOption(2);
             }
         });
 
         userResponse0Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                selectOption(3);
             }
 
         });
@@ -169,8 +178,18 @@ EditText userTextInput;
         userSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                onAnswerSubmission();
 
-                }
+            }
+
+        });
+
+
+        userExitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectOption(4);
+            }
 
         });
 
@@ -180,25 +199,21 @@ EditText userTextInput;
 
     /* Main Method */
 
-    public void startUp(){
+    public void startUp() {
         runGame();
-
-
     }
 
-        public void runGame(){
+    public void runGame() {
 
-        MainActivity mainActivity = new MainActivity();
-        Scanner console = new Scanner(System.in);
-        MedievalGame game = new MedievalGame();
+////        MainActivity mainActivity = new MainActivity();
+//        Scanner console = new Scanner(System.in);
+//        MedievalGame game = new MedievalGame();
 
-       mainActivity.player = mainActivity.start(console);
+        mainActivity.player = mainActivity.start();
 
-        if (newGame == true){
-            mainActivity.newGame(mainActivity, console);
-        }
-
-        else {
+        if (newGame == true) {
+            mainActivity.newGame(mainActivity);
+        } else {
             mainActivity.addDelay(1500);
             System.out.println("Loading character...");
             mainTextView.setText("Loading character...");
@@ -211,58 +226,70 @@ EditText userTextInput;
             mainActivity.addDelay(500);
             System.out.println(mainActivity.player);
             mainTextView.setText(mainActivity.player.toString());
+
+            nextLevel();
         }
+    }
 
+    public void nextLevel() {
+        String progress = player.getProgress();
         switch (progress) {
-
-            case "level1" :
+            case "level1":
 //        boolean level1InProgress = true;
-                while(progress.equalsIgnoreCase("level1")) {
-                    progress = "level1";
-                    mainActivity.addDelay(2000);
+                while (progress.equalsIgnoreCase("level1")) {
+                    player.setProgress("level1");
+//                    mainActivity.addDelay(2000);
+                    mainTextView.setText("You discover a chest. Would you like to open it?");
                     System.out.println("\nYou discover a chest. Would you like to open it? Type y for yes, n for no, s for save, x for exit.");
-                    if(console.hasNext()) {
-                        String chest = console.next().toLowerCase();
-                    }
+                    //                  String chest = console.next().toLowerCase();
+
+                    int chest = userChoice;
+
                     while (true) {
-                        if (chest.equalsIgnoreCase("y")) {
+                        if (chest == 0) {
                             System.out.println("You open the chest to find a helmet. You put it on.");
                             Helmet platedHelmet = new Helmet("Plated ArmourFiles.Helmet", 5, 8);
                             mainActivity.player.setHelmet(platedHelmet);
                             System.out.println(mainActivity.player);
                             mainActivity.addDelay(2000);
-                            progress = "level2";
+                            player.setProgress("level2");
                             break;
-                        } else if (chest.equalsIgnoreCase("n")) {
+                        } else if (chest == 1) {
                             System.out.println("You choose not to open the chest. An onlooker observes your honesty and gives you a pair of boots.");
                             Shoe leatherboots = new Shoe("Leather Boots", 10, 10);
                             mainActivity.player.setShoe(leatherboots);
                             System.out.println(mainActivity.player);
-                            progress = "level2";
+                            player.setProgress("level2");
                             break;
-                        } else if (chest.equalsIgnoreCase("s")) {
+                        } else if (chest==2) {
                             System.out.println("Please enter your save mainActivity name.");
-                            String savedFileName = console.nextLine();
-                            mainActivity.save(console);
+                            String savedFileName = userTextInputCollected;
+                            //mainActivity.save(console);
                             break;
-                        } else if (chest.equalsIgnoreCase("x")) {
+                        } else if (chest==3) {
+                            System.out.println("Please enter your save mainActivity name.");
+                            String savedFileName = userTextInputCollected;
+                            //mainActivity.save(console);
+                            break;
+                        } else if (chest==4) {
                             System.out.println("Goodbye Traveller, return soon to conquer to hordes of evil!");
                             System.exit(0);
                             break;
                         } else {
-                            System.out.println("Please try again, your options are y or n to open the chest.");
-                            chest = console.next().toLowerCase();
+                           // System.out.println("Please try again, your options are y or n to open the chest.");
+                           // chest = userChoice;
                         }
                     }
+                    nextLevel();
                 }
 //            break;
 
             case "level2":
-                while(progress.equalsIgnoreCase("level2")) {
+                while (progress.equalsIgnoreCase("level2")) {
                     System.out.println("\nYou discover a Zombie. The Zombie has " + mainActivity.zombieHealth + " health and " + mainActivity.zombieDamage + " damage. Would you like to attack it? Type y for yes, n for no, s for save, x for exit.");
-                    mainActivity.zombie = console.next().toLowerCase();
+                    mainActivity.zombie = userChoice;
                     while (true) {
-                        if (mainActivity.zombie.equalsIgnoreCase("y")) {
+                        if (mainActivity.zombie == 0) {
                             System.out.println("\nYou attack the zombie");
                             int currentWeaponDamage = mainActivity.player.getCurrentWeaponDamage();
                             while (true) {
@@ -274,10 +301,10 @@ EditText userTextInput;
                                     mainActivity.player.setCurrentWeapon(longSword);
                                     System.out.println("The Zombie was carrying a Long Sword which you claim as your own.");
                                     System.out.println(mainActivity.player);
-                                    progress = "level3";
+                                    player.setProgress("level3");
                                     System.out.println("Please enter your save game name.");
-                                    String savedFileName = console.nextLine();
-                                    mainActivity.save(console);
+                                    String savedFileName = userTextInputCollected;
+                                    mainActivity.save(userTextInputCollected);
                                     break;
                                 } else {
                                     mainActivity.addDelay(2000);
@@ -289,70 +316,74 @@ EditText userTextInput;
                                 }
                             }
                             break;
-                        } else if (mainActivity.zombie.equalsIgnoreCase("n")) {
+                        } else if (mainActivity.zombie == 1) {
                             System.out.println("You choose not to attack the Zombie. The Zombie attacks you in the back as you run away.");
                             mainActivity.player.takeDamage(mainActivity.zombieDamage * 1.5);
-                            progress = "level3";
+                            player.setProgress("level3");
                             break;
 
-                        } else if (mainActivity.zombie.equalsIgnoreCase("s")) {
+                        } else if (mainActivity.zombie == 2) {
                             System.out.println("Please enter your save game name.");
-                            String savedFileName = console.nextLine();
-                            mainActivity.save(console);
+                            String savedFileName = userTextInputCollected;
+                            mainActivity.save(userTextInputCollected);
                             break;
-                        } else if (mainActivity.zombie.equalsIgnoreCase("x")) {
+                        } else if (mainActivity.zombie ==3) {
                             System.out.println("Goodbye Traveller, return soon to conquer to hordes of evil!");
                             System.exit(0);
                             break;
-                        } else {
-                            System.out.println("Please try again, your options are y or n to attack the Zombie, s to Save or x to exit");
-                            mainActivity.zombie = console.next().toLowerCase();
+                        } else if (mainActivity.zombie == 4) {
+                            System.out.println("What is the name of your save file?");
+                            String loadFileName = userTextInputCollected + ".svr";
+                            player = load(loadFileName);
+                    } else {
+                            //System.out.println("Please try again, your options are y or n to attack the Zombie, s to Save or x to exit");
+                           // mainActivity.zombie = userChoice;
                         }
                     }
                 }
 
             case "level3":
-                while(progress.equalsIgnoreCase("level3")) {
+                while (progress.equalsIgnoreCase("level3")) {
                     System.out.println("\nYou discover a chest. Would you like to open it? Type y for yes, n for no, s for save, x for exit.");
-                    mainActivity.chestTwo = console.next().toLowerCase();
+                    mainActivity.chestTwo = userChoice;
                     while (true) {
-                        if (mainActivity.chestTwo.equalsIgnoreCase("y")) {
+                        if (mainActivity.chestTwo== 0) {
                             mainActivity.addDelay(2000);
                             System.out.println("You open the chest to find some chain mail. You put it on.");
                             Armour chainMail = new Armour("Chain Mail", 10, 10);
                             mainActivity.player.setArmour(chainMail);
                             System.out.println(mainActivity.player);
                             mainActivity.addDelay(2000);
-                            progress = "level4";
+                            player.setProgress("level4");
                             break;
-                        } else if (mainActivity.chestTwo.equalsIgnoreCase("n")) {
+                        } else if (mainActivity.chestTwo== 1) {
                             System.out.println("You choose not to open the chest. An observer thinks it must be locked and bashes it with their mace. They discover some Chain Mail inside and leave their own armor behind.");
                             Armour platedArmor = new Armour("Plated Armor", 7, 6);
                             mainActivity.player.setArmour(platedArmor);
                             System.out.println(mainActivity.player);
-                            progress = "level4";
+                            player.setProgress("level4");
                             break;
-                        } else if (mainActivity.chestTwo.equalsIgnoreCase("s")) {
+                        } else if (mainActivity.chestTwo== 2) {
                             System.out.println("Please enter your save game name.");
-                            String savedFileName = console.nextLine();
-                            mainActivity.save(console);
+                            String savedFileName = userTextInputCollected;
+                            mainActivity.save(savedFileName);
                             break;
-                        } else if (mainActivity.chestTwo.equalsIgnoreCase("x")) {
+                        } else if (mainActivity.chestTwo== 4) {
                             System.out.println("Goodbye Traveller, return soon to conquer to hordes of evil!");
                             System.exit(0);
                             break;
                         } else {
-                            System.out.println("Please try again, your options are y or n to open the chest.");
-                            mainActivity.chestTwo = console.next().toLowerCase();
+                           // System.out.println("Please try again, your options are y or n to open the chest.");
+                          //  mainActivity.chestTwo = console.next().toLowerCase();
                         }
                     }
                 }
             case "level4":
-                while(progress.equalsIgnoreCase("level4")) {
+                while (progress.equalsIgnoreCase("level4")) {
                     System.out.println("\nYou discover a " + mainActivity.zombieKing.getEnemyName() + " .The Zombie King has " + mainActivity.zombieKing.getEnemyHealth() + " health and " + mainActivity.zombieKing.getEnemyDamage() + " damage. Would you like to attack it? Type y for yes, n for no, s for save, x for exit.");
-                    mainActivity.enemy2 = console.next().toLowerCase();
+                    mainActivity.enemy2 = userChoice;
                     while (true) {
-                        if (mainActivity.enemy2.equalsIgnoreCase("y")) {
+                        if (mainActivity.enemy2 == 0 ) {
                             System.out.println("\nYou attack the " + mainActivity.zombieKing.getEnemyName());
                             int currentWeaponDamage = mainActivity.player.getCurrentWeaponDamage();
                             int zombieKingHealth = mainActivity.zombieKing.getEnemyHealth();
@@ -365,11 +396,11 @@ EditText userTextInput;
                                     Trouser chainMailTrousers = new Trouser("Chain Mail Trousers", 10, 10);
                                     mainActivity.player.setTrouser(chainMailTrousers);
                                     System.out.println(mainActivity.player);
-                                    progress = "level5";
+                                    player.setProgress("level5");
                                     System.out.println("Please enter your save game name.");
-                                    String savedFileName = console.nextLine();
-                                    mainActivity.save(console);
-                                    progress = "level5";
+                                    String savedFileName = userTextInputCollected;
+                                    mainActivity.save(savedFileName);
+                                    player.setProgress("level5");
                                     break;
                                 } else {
                                     mainActivity.addDelay(2000);
@@ -381,71 +412,71 @@ EditText userTextInput;
                                 }
                             }
                             break;
-                        } else if (mainActivity.enemy2.equalsIgnoreCase("n")) {
+                        } else if (mainActivity.enemy2 == 1) {
                             System.out.println("You choose not to attack the Zombie. The Zombie attacks you in the back as you run away.");
                             mainActivity.player.takeDamage(mainActivity.zombieKing.getEnemyDamage() / 2);
-                            progress = "level5";
+                            player.setProgress("level5");
                             break;
-                        } else if (mainActivity.enemy2.equalsIgnoreCase("s")) {
+                        } else if (mainActivity.enemy2 == 2) {
                             System.out.println("Please enter your save mainActivity name.");
-                            String savedFileName = console.nextLine();
-                            mainActivity.save(console);
+                            String savedFileName = userTextInputCollected;
+                            mainActivity.save(savedFileName);
                             break;
-                        } else if (mainActivity.enemy2.equalsIgnoreCase("x")) {
+                        } else if (mainActivity.enemy2 == 3) {
                             System.out.println("Goodbye Traveller, return soon to conquer to hordes of evil!");
                             System.exit(0);
                             break;
                         } else {
-                            System.out.println("Please try again, your options are y or n to attack the Zombie, s to Save or x to exit");
-                            mainActivity.enemy2 = console.next().toLowerCase();
+                           // System.out.println("Please try again, your options are y or n to attack the Zombie, s to Save or x to exit");
+                           // mainActivity.enemy2 = userChoice;
                         }
                     }
                 }
 
             case "level5":
-                while(progress.equalsIgnoreCase("level5")) {
+                while (progress.equalsIgnoreCase("level5")) {
                     System.out.println("\nYou discover a door. Would you like to open it? Type y for yes, n for no, s for save, x for exit.");
-                    mainActivity.doorOne = console.next().toLowerCase();
+                    mainActivity.doorOne = userChoice;
                     while (true) {
-                        if (mainActivity.doorOne.equalsIgnoreCase("y")) {
+                        if (mainActivity.doorOne== 0) {
                             mainActivity.addDelay(2000);
                             System.out.println("You open the door to find some a leather jacket. You put it on.");
                             Shirt leatherJacket = new Shirt("Leather Jacket", 3, 3);
                             mainActivity.player.setShirt(leatherJacket);
                             System.out.println(mainActivity.player);
                             mainActivity.addDelay(2000);
-                            progress = "level6";
+                            player.setProgress("level6");
                             break;
-                        } else if (mainActivity.doorOne.equalsIgnoreCase("n")) {
+                        } else if (mainActivity.doorOne== 1) {
                             System.out.println("You choose not to open the door. An observer thinks it must be locked and bashes it with their mace. They discover some Chain Mail inside and leave their own armor behind.");
                             Armour platedArmor = new Armour("Plated Armor", 7, 6);
                             mainActivity.player.setArmour(platedArmor);
                             System.out.println(mainActivity.player);
-                            progress = "level6";
+                            player.setProgress("level6");
                             break;
 
-                        } else if (mainActivity.doorOne.equalsIgnoreCase("s")) {
+                        } else if (mainActivity.doorOne== 2) {
                             System.out.println("Please enter your save mainActivity name.");
-                            String savedFileName = console.nextLine();
-                            mainActivity.save(console);
+                            String savedFileName = userTextInputCollected;
+                            mainActivity.save(savedFileName);
                             break;
-                        } else if (mainActivity.doorOne.equalsIgnoreCase("x")) {
+                        } else if (mainActivity.doorOne== 4) {
                             System.out.println("Goodbye Traveller, return soon to conquer to hordes of evil!");
                             System.exit(0);
                             break;
                         } else {
-                            System.out.println("Please try again, your options are y or n to open the chest.");
-                            mainActivity.doorOne = console.next().toLowerCase();
+                           // System.out.println("Please try again, your options are y or n to open the chest.");
+                          //  mainActivity.doorOne = userChoice;
                         }
                     }
                 }
             case "level6":
-                while(progress.equalsIgnoreCase("level6")) {
+                while (progress.equalsIgnoreCase("level6")) {
                     System.out.println("\nYou discover " + mainActivity.loki.getEnemyName() + " .He has " + mainActivity.loki.getEnemyHealth() + " health and " + mainActivity.loki.getEnemyDamage() + " damage. Would you like to attack it? Type y for yes, n for no, s for save, x for exit.");
-                    mainActivity.enemy3 = console.next().toLowerCase();
+                    mainActivity.enemy3 = userChoice;
 
                     while (true) {
-                        if (mainActivity.enemy3.equalsIgnoreCase("y")) {
+                        if (mainActivity.enemy3== 0) {
                             System.out.println("\nYou attack " + mainActivity.loki.getEnemyName());
                             int currentWeaponDamage = mainActivity.player.getCurrentWeaponDamage();
 
@@ -463,10 +494,10 @@ EditText userTextInput;
                                     mainActivity.player.setTrouser(chainMailTrousers);
                                     System.out.println(mainActivity.player);
                                     System.out.println("Please enter your save mainActivity name.");
-                                    String savedFileName = console.nextLine();
-                                    mainActivity.save(console);
+                                    String savedFileName = userTextInputCollected;
+                                    mainActivity.save(savedFileName);
                                     System.out.println("Congratulations you have defeated the boss and completed the mainActivity. Well done!");
-                                    progress = "level7";
+                                    player.setProgress("level7");;
                                     System.exit(1);
                                     break;
                                 } else {
@@ -488,27 +519,28 @@ EditText userTextInput;
 //                    break;
                             }
                             break;
-                        } else if (mainActivity.enemy3.equalsIgnoreCase("n")) {
+                        } else if (mainActivity.enemy3== 1) {
                             System.out.println("You choose not to attack. " + mainActivity.loki.getEnemyName() + " attacks you in the back as you run away.");
                             mainActivity.player.takeDamage(mainActivity.loki.getEnemyDamage() / 2);
-                            progress = "level7";
+                            player.setProgress("level7");
                             System.out.println("Your cowardly actions have not gone unnoticed, the King has thrown you in jail and you journey is at an end. Better luck next time.");
                             System.exit(0);
                             break;
 
-                        } else if (mainActivity.enemy3.equalsIgnoreCase("s")) {
+                        } else if (mainActivity.enemy3== 2) {
                             System.out.println("Please enter your save mainActivity name.");
-                            String savedFileName = console.nextLine();
-                            mainActivity.save(console);
+                            String savedFileName = userTextInputCollected;
+                            mainActivity.save(savedFileName);
                             break;
-                        } else if (mainActivity.enemy3.equalsIgnoreCase("x")) {
+
+                        } else if (mainActivity.enemy3== 4) {
                             System.out.println("Goodbye Traveller, return soon to conquer to hordes of evil!");
                             System.exit(0);
                             break;
                         } else {
 //                    progress = "level7";
-                            System.out.println("Please try again, your options are y or n to attack the Zombie, s to Save or x to exit");
-                            mainActivity.enemy2 = console.next().toLowerCase();
+                       //    System.out.println("Please try again, your options are y or n to attack the Zombie, s to Save or x to exit");
+                       //    mainActivity.enemy2 = userChoice;
                         }
                     }
                 }
@@ -517,11 +549,15 @@ EditText userTextInput;
 
         }
 
+    } // End of main
 
-    }// End of main
+
+
+
+
 
     /* Instance Methods */
-    private Player start(Scanner console) {
+    private Player start() {
         // Add start functionality here
         Player player;
         Art.homeScreen();
@@ -538,40 +574,40 @@ EditText userTextInput;
             mainTextView.setText("Would you like to start a new game? Y for yes, or N for No to load a previous game.");
         }
 
-        String answer = console.nextLine();
+        String answer = userTextInputCollected;
         String yes = "Y";
         String no = "N";
-        if (answer.equalsIgnoreCase(yes)){
+        if (answer.equalsIgnoreCase(yes)) {
             newGame = true;
             System.out.println("What would you like your adventurer to be named?");
-            String desiredPlayerName = console.nextLine();
+            String desiredPlayerName = userTextInputCollected;
             player = new Player(desiredPlayerName);
             return player;
         } else if (answer.equalsIgnoreCase(no)) {
             System.out.println("What is the name of your save file?");
-            String loadFileName = console.nextLine()+".svr";
-            player = load(loadFileName, console);
+            String loadFileName = userTextInputCollected + ".svr";
+            player = load(loadFileName);
             return player;
 
         } else {
             newGame = true;
-            System.out.println ("Sorry that input was not valid, we have created a new player for you with a great generic name ;)");
+            System.out.println("Sorry that input was not valid, we have created a new player for you with a great generic name ;)");
             player = new Player("Generic Knight");
             return player;
         }
     } // End of start
 
-    private String save(Scanner console) {
+    private String save(String userTextCollected) {
         // Add save functionality here
 //        String fileName = player.getName() + ".svr";
-        String chosenName = console.nextLine();
-        String fileName = chosenName+".svr";
+        String chosenName = userTextCollected;
+        String fileName = chosenName + ".svr";
         try {
 
             FileOutputStream userSaveFile = new FileOutputStream(fileName);
             ObjectOutputStream playerSaver = new ObjectOutputStream(userSaveFile);
             playerSaver.writeObject(player);
-            playerSaver.writeObject(progress);
+//            playerSaver.writeObject(progress);
             System.out.println("We've just saved your game with file name " + chosenName);
 
             return fileName;
@@ -582,7 +618,7 @@ EditText userTextInput;
         }
     }
 
-    private Player load(String playerName, Scanner console) {
+    private Player load(String playerName) {
         // Add load functionality here
 
         Player loadedPlayer;
@@ -592,7 +628,7 @@ EditText userTextInput;
             FileInputStream loadedSaveFile = new FileInputStream(playerName);
             ObjectInputStream loadedObjectFile = new ObjectInputStream(loadedSaveFile);
             loadedPlayer = (Player) loadedObjectFile.readObject();
-            this.progress = (String) loadedObjectFile.readObject();
+ //           this.progress = (String) loadedObjectFile.readObject();
 
 
             return loadedPlayer;
@@ -610,14 +646,14 @@ EditText userTextInput;
 
     }
 
-    public void newGame(MainActivity mainActivity, Scanner console) {
+    public void newGame(MainActivity mainActivity) {
         mainActivity.addDelay(500);
         System.out.println("\nLet's take a quick look at you to make sure you're ready to head out the door.");
         System.out.println(mainActivity.player);
 
         mainActivity.addDelay(1000);
         System.out.println("\nWell, you're off to a good start, let's get your game saved so we don't lose it. Please enter your save game name.");
-        String savedFileName = mainActivity.save(console);
+        String savedFileName = mainActivity.save(userTextInputCollected);
 
 
         mainActivity.addDelay(2000);
@@ -630,7 +666,7 @@ EditText userTextInput;
         mainActivity.player = null;
 
         mainActivity.addDelay(1500);
-        mainActivity.player = mainActivity.load(savedFileName, console);
+        mainActivity.player = mainActivity.load(savedFileName);
         System.out.println("Loading character...");
 
         mainActivity.addDelay(2000);
@@ -649,4 +685,44 @@ EditText userTextInput;
         }
     }
 
+
+    private void selectOption(int answerSelection) {
+
+        userChoice = answerSelection;
+        if (answerSelection == 0) {
+            userResponse0Button.setText("✔ " + "yes");
+            userResponse1Button.setText("no");
+            userResponse2Button.setText("Save");
+            userResponse3Button.setText("Load");
+            validAnswer = true;
+        } else if (answerSelection == 1) {
+            userResponse0Button.setText("yes");
+            userResponse1Button.setText("✔" + "no");
+            userResponse2Button.setText("Save");
+            userResponse3Button.setText("Load");
+            validAnswer = true;
+        } else if (answerSelection == 2) {
+            userResponse0Button.setText("yes");
+            userResponse1Button.setText("no");
+            userResponse2Button.setText("✔ " +  "Save");
+            userResponse3Button.setText("Load");
+            validAnswer = true;
+        } else if (answerSelection == 3) {
+            userResponse0Button.setText("yes");
+            userResponse1Button.setText("no");
+            userResponse2Button.setText("Save");
+            userResponse3Button.setText("✔ "+ "Load");
+            validAnswer = true;
+        } else {
+            validAnswer = false;
+        }
     }
+
+
+    public void onAnswerSubmission() {
+        nextLevel();
+    }
+
+
+
+}
